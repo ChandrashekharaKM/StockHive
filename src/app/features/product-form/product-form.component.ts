@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -29,6 +29,7 @@ export class ProductFormComponent implements OnInit {
 
   productId: string | null = null;
   isEditing = false;
+  isSubmitting = signal(false);
   error: string | null = null;
 
   async ngOnInit() {
@@ -47,7 +48,13 @@ export class ProductFormComponent implements OnInit {
   }
 
   async onSubmit() {
-    if (this.form.invalid) return;
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+
+    this.isSubmitting.set(true);
+    this.error = null;
 
     try {
       const payload = {
@@ -57,7 +64,6 @@ export class ProductFormComponent implements OnInit {
       };
 
       if (this.isEditing && this.productId) {
-        // Exclude quantity when editing since it's disabled
         const { quantity, ...changes } = payload;
         console.log('Updating product', this.productId, changes);
         await this.productService.updateProduct(this.productId, changes);
@@ -69,6 +75,8 @@ export class ProductFormComponent implements OnInit {
       this.router.navigate(['/']);
     } catch (err: any) {
       this.error = err.message;
+    } finally {
+      this.isSubmitting.set(false);
     }
   }
 

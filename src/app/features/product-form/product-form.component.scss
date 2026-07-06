@@ -24,13 +24,24 @@
   input {
     width: 100%;
     padding: 0.5rem;
-    border: 1px solid #ced4da;
+    border: 1px solid #ccc;
     border-radius: 4px;
+    font-size: 1rem;
     box-sizing: border-box;
+
+    &.ng-invalid.ng-touched {
+      border-color: #dc3545;
+    }
 
     &:disabled {
       background-color: #e9ecef;
     }
+  }
+
+  .validation-error {
+    color: #dc3545;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
   }
 
   small {

@@ -5,29 +5,35 @@
     <div class="form-group">
       <label for="name">Product Name</label>
       <input id="name" formControlName="name" type="text" placeholder="e.g. Test Tube" />
+      <span class="validation-error" *ngIf="form.get('name')?.invalid && form.get('name')?.touched">Name is required.</span>
     </div>
 
     <div class="form-group">
       <label for="sku">SKU</label>
       <input id="sku" formControlName="sku" type="text" placeholder="e.g. SKU-123" />
+      <span class="validation-error" *ngIf="form.get('sku')?.invalid && form.get('sku')?.touched">SKU is required.</span>
     </div>
 
     <div class="form-group">
       <label for="quantity">Initial Quantity</label>
       <input id="quantity" formControlName="quantity" type="number" />
+      <span class="validation-error" *ngIf="form.get('quantity')?.invalid && form.get('quantity')?.touched">Quantity must be a valid positive number.</span>
       <small *ngIf="isEditing">Stock levels must be adjusted from the dashboard to track movements.</small>
     </div>
 
     <div class="form-group">
       <label for="reorderLevel">Reorder Level</label>
       <input id="reorderLevel" formControlName="reorderLevel" type="number" />
+      <span class="validation-error" *ngIf="form.get('reorderLevel')?.invalid && form.get('reorderLevel')?.touched">Reorder Level must be a valid positive number.</span>
     </div>
 
     <div class="error" *ngIf="error">{{ error }}</div>
 
     <div class="actions">
-      <button type="button" class="btn-secondary" (click)="cancel()">Cancel</button>
-      <button type="submit" class="btn-primary" [disabled]="form.invalid">Save</button>
+      <button type="button" class="btn-secondary" (click)="cancel()" [disabled]="isSubmitting()">Cancel</button>
+      <button type="submit" class="btn-primary" [disabled]="form.invalid || isSubmitting()">
+        {{ isSubmitting() ? 'Saving...' : 'Save' }}
+      </button>
     </div>
   </form>
 </div>
