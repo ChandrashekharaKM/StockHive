@@ -1,0 +1,33 @@
+<div class="form-container">
+  <h2>{{ isEditing ? 'Edit Product' : 'Add Product' }}</h2>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    
+    <div class="form-group">
+      <label for="name">Product Name</label>
+      <input id="name" formControlName="name" type="text" placeholder="e.g. Test Tube" />
+    </div>
+
+    <div class="form-group">
+      <label for="sku">SKU</label>
+      <input id="sku" formControlName="sku" type="text" placeholder="e.g. SKU-123" />
+    </div>
+
+    <div class="form-group">
+      <label for="quantity">Initial Quantity</label>
+      <input id="quantity" formControlName="quantity" type="number" />
+      <small *ngIf="isEditing">Stock levels must be adjusted from the dashboard to track movements.</small>
+    </div>
+
+    <div class="form-group">
+      <label for="reorderLevel">Reorder Level</label>
+      <input id="reorderLevel" formControlName="reorderLevel" type="number" />
+    </div>
+
+    <div class="error" *ngIf="error">{{ error }}</div>
+
+    <div class="actions">
+      <button type="button" class="btn-secondary" (click)="cancel()">Cancel</button>
+      <button type="submit" class="btn-primary" [disabled]="form.invalid">Save</button>
+    </div>
+  </form>
+</div>

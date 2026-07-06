@@ -1,0 +1,40 @@
+<header class="dashboard-header">
+  <div class="actions">
+    <input placeholder="Search name or SKU" [ngModel]="search()" (ngModelChange)="search.set($event)" />
+    <label>
+      <input type="checkbox" [ngModel]="lowStockOnly()" (ngModelChange)="lowStockOnly.set($event)" /> 
+      Low stock only
+    </label>
+    <button (click)="addProduct()" class="btn btn-primary">Add Product</button>
+  </div>
+  <button (click)="logout()" class="btn btn-secondary">Sign out</button>
+</header>
+
+<table class="dashboard-table">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>SKU</th>
+      <th>Qty</th>
+      <th>Reorder Level</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let p of filtered()" [class.low-stock]="isLow(p)">
+      <td>{{ p.name }}</td>
+      <td>{{ p.sku }}</td>
+      <td>{{ p.quantity }}</td>
+      <td>{{ p.reorderLevel }}</td>
+      <td class="table-actions">
+        <button (click)="adjust(p.id!, -1)">-1</button>
+        <button (click)="adjust(p.id!, 1)">+1</button>
+        <button (click)="editProduct(p.id!)">Edit</button>
+        <button (click)="remove(p.id!)" class="btn-danger">Delete</button>
+      </td>
+    </tr>
+    <tr *ngIf="filtered().length === 0">
+      <td colspan="5" class="empty-state">No products found.</td>
+    </tr>
+  </tbody>
+</table>

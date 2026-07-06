@@ -1,59 +1,24 @@
-# Stockhive
+# StockHive
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.18.
+A small inventory tracker built with Angular, Firebase Auth, and Firestore.
 
-## Development server
+## Live Demo
+https://ai-engine-auth.web.app/
 
-To start a local development server, run:
+## Test Credentials
+- **Email:** test@stockhive.com
+- **Password:** password123
 
-```bash
-ng serve
-```
+## Usage Guide
+1. **Sign in** using the credentials above.
+2. View the **Dashboard** which lists all products and highlights low-stock items in yellow/red.
+3. Use the **Search bar** to find products by name or SKU, and use the **Low stock only** checkbox to filter.
+4. Click **Add Product** to create a new item. The initial quantity is set here.
+5. Back on the dashboard, use the **+1** or **-1** buttons to adjust stock. This updates the stock level and writes an atomic record to the movement log simultaneously.
+6. Note: Firestore rules are locked down. You must be authenticated to read/write products, and you can only append to your own movement logs. Unauthenticated requests will fail.
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+## Setup Locally
+1. Clone the repository.
+2. Run `npm install`.
+3. Provide your `firebaseConfig` in `src/app/app.config.ts`.
+4. Run `ng serve` and navigate to `http://localhost:4200/`.
