@@ -25,12 +25,24 @@ export class DashboardComponent {
   filtered = computed(() => {
     const term = this.search().toLowerCase().trim();
     return this.products()
-      .filter(p => !term || p.name.toLowerCase().includes(term) || p.sku.toLowerCase().includes(term))
-      .filter(p => !this.lowStockOnly() || p.quantity <= p.reorderLevel);
+      .filter(p => {
+        if (!term) return true;
+        const nameMatch = p.name ? p.name.toLowerCase().includes(term) : false;
+        const skuMatch = p.sku ? p.sku.toLowerCase().includes(term) : false;
+        return nameMatch || skuMatch;
+      })
+      .filter(p => {
+        if (!this.lowStockOnly()) return true;
+        const q = p.quantity ?? 0;
+        const r = p.reorderLevel ?? 0;
+        return q <= r;
+      });
   });
 
-  isLow(p: { quantity: number; reorderLevel: number }) {
-    return p.quantity <= p.reorderLevel;
+  isLow(p: { quantity?: number; reorderLevel?: number }) {
+    const q = p.quantity ?? 0;
+    const r = p.reorderLevel ?? 0;
+    return q <= r;
   }
 
   adjust(id: string, delta: number) {

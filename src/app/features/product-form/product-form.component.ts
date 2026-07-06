@@ -50,11 +50,21 @@ export class ProductFormComponent implements OnInit {
     if (this.form.invalid) return;
 
     try {
+      const payload = {
+        ...this.form.value,
+        quantity: Number(this.form.get('quantity')?.value || 0),
+        reorderLevel: Number(this.form.get('reorderLevel')?.value || 0)
+      };
+
       if (this.isEditing && this.productId) {
-        const changes = this.form.value; // Doesn't include disabled quantity
+        // Exclude quantity when editing since it's disabled
+        const { quantity, ...changes } = payload;
+        console.log('Updating product', this.productId, changes);
         await this.productService.updateProduct(this.productId, changes);
       } else {
-        await this.productService.addProduct(this.form.value as Omit<Product, 'id'>);
+        console.log('Adding product', payload);
+        await this.productService.addProduct(payload as Omit<Product, 'id'>);
+        console.log('Product added successfully!');
       }
       this.router.navigate(['/']);
     } catch (err: any) {
