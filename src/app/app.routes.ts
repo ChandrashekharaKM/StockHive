@@ -14,19 +14,22 @@ const authGuard = () => {
 };
 
 export const routes: Routes = [
-  { path: 'login', loadComponent: () => import('./features/login/login.component').then(m => m.LoginComponent) },
+  { path: 'login', title: 'Login | StockHive', loadComponent: () => import('./features/login/login.component').then(m => m.LoginComponent) },
   {
     path: '',
+    title: 'Dashboard | StockHive',
     canActivate: [authGuard],
     loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent)
   },
   {
     path: 'product/new',
+    title: 'New Product | StockHive',
     canActivate: [authGuard],
     loadComponent: () => import('./features/product-form/product-form.component').then(m => m.ProductFormComponent)
   },
   {
     path: 'product/:id',
+    title: 'Edit Product | StockHive',
     canActivate: [authGuard],
     loadComponent: () => import('./features/product-form/product-form.component').then(m => m.ProductFormComponent)
   },

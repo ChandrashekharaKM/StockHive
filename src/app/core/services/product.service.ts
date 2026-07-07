@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Firestore, collection, collectionData, doc, addDoc, updateDoc, deleteDoc, runTransaction, query, orderBy, limit } from '@angular/fire/firestore';
+import { Firestore, collection, collectionData, docData, doc, addDoc, updateDoc, deleteDoc, runTransaction, writeBatch, query, orderBy, limit } from '@angular/fire/firestore';
 import { Auth } from '@angular/fire/auth';
 import { Observable } from 'rxjs';
 import { Product } from '../models/product.model';
@@ -14,16 +14,45 @@ export class ProductService {
     return collectionData(query(ref, orderBy('name'), limit(100)), { idField: 'id' }) as Observable<Product[]>;
   }
 
-  addProduct(p: Omit<Product, 'id'>) {
-    return addDoc(collection(this.fs, 'products'), p);
+  getProduct(id: string): Observable<Product> {
+    const ref = doc(this.fs, `products/${id}`);
+    return docData(ref, { idField: 'id' }) as Observable<Product>;
+  }
+
+  async addProduct(p: Omit<Product, 'id'>) {
+    const uid = this.auth.currentUser?.uid ?? 'unknown';
+    const batch = writeBatch(this.fs);
+    const productRef = doc(collection(this.fs, 'products'));
+    batch.set(productRef, p);
+
+    if (p.quantity > 0) {
+      const movementRef = doc(collection(this.fs, 'movements'));
+      batch.set(movementRef, { productId: productRef.id, delta: p.quantity, at: Date.now(), byUid: uid });
+    }
+    
+    await batch.commit();
+    return productRef;
   }
 
   updateProduct(id: string, changes: Partial<Product>) {
     return updateDoc(doc(this.fs, 'products', id), changes);
   }
 
-  deleteProduct(id: string) {
-    return deleteDoc(doc(this.fs, 'products', id));
+  async deleteProduct(id: string) {
+    const uid = this.auth.currentUser?.uid ?? 'unknown';
+    const productRef = doc(this.fs, 'products', id);
+
+    await runTransaction(this.fs, async (tx) => {
+      const snap = await tx.get(productRef);
+      if (snap.exists()) {
+        const qty = snap.data()['quantity'] as number;
+        if (qty > 0) {
+          const movementRef = doc(collection(this.fs, 'movements'));
+          tx.set(movementRef, { productId: id, delta: -qty, at: Date.now(), byUid: uid });
+        }
+        tx.delete(productRef);
+      }
+    });
   }
 
   async adjustStock(productId: string, delta: number) {

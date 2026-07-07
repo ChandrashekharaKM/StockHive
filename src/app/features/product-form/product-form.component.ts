@@ -20,7 +20,7 @@ export class ProductFormComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
-  form: FormGroup = this.fb.group({
+  form = this.fb.nonNullable.group({
     name: ['', Validators.required],
     sku: ['', Validators.required],
     quantity: [0, [Validators.required, Validators.min(0)]],
@@ -36,10 +36,7 @@ export class ProductFormComponent implements OnInit {
     this.productId = this.route.snapshot.paramMap.get('id');
     if (this.productId && this.productId !== 'new') {
       this.isEditing = true;
-      // For simplicity, we just fetch all products and find the one. 
-      // In a real app, we'd have a getProduct(id) method.
-      const products = await firstValueFrom(this.productService.getProducts().pipe(take(1)));
-      const product = products.find(p => p.id === this.productId);
+      const product = await firstValueFrom(this.productService.getProduct(this.productId).pipe(take(1)));
       if (product) {
         this.form.patchValue(product);
         this.form.get('quantity')?.disable(); // Quantity should be adjusted via the dashboard +1/-1 to record movements
@@ -58,7 +55,7 @@ export class ProductFormComponent implements OnInit {
 
     try {
       const payload = {
-        ...this.form.value,
+        ...this.form.getRawValue(),
         quantity: Number(this.form.get('quantity')?.value || 0),
         reorderLevel: Number(this.form.get('reorderLevel')?.value || 0)
       };
@@ -69,7 +66,7 @@ export class ProductFormComponent implements OnInit {
         await this.productService.updateProduct(this.productId, changes);
       } else {
         console.log('Adding product', payload);
-        await this.productService.addProduct(payload as Omit<Product, 'id'>);
+        await this.productService.addProduct(payload);
         console.log('Product added successfully!');
       }
       this.router.navigate(['/']);
