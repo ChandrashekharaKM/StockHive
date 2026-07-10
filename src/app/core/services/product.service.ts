@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Firestore, collection, collectionData, docData, doc, addDoc, updateDoc, deleteDoc, runTransaction, writeBatch, query, orderBy, limit } from '@angular/fire/firestore';
+import { Firestore, collection, collectionData, docData, doc, addDoc, updateDoc, deleteDoc, runTransaction, writeBatch, query, orderBy, limit, where, getDocs } from '@angular/fire/firestore';
 import { Auth } from '@angular/fire/auth';
 import { Observable } from 'rxjs';
 import { Product } from '../models/product.model';
@@ -17,6 +17,18 @@ export class ProductService {
   getProduct(id: string): Observable<Product> {
     const ref = doc(this.fs, `products/${id}`);
     return docData(ref, { idField: 'id' }) as Observable<Product>;
+  }
+
+  async checkSkuExists(sku: string, excludeProductId?: string | null): Promise<boolean> {
+    if (!sku) return false;
+    const ref = collection(this.fs, 'products');
+    const q = query(ref, where('sku', '==', sku.trim()));
+    const snapshot = await getDocs(q);
+    if (snapshot.empty) return false;
+    if (excludeProductId) {
+      return snapshot.docs.some(doc => doc.id !== excludeProductId);
+    }
+    return true;
   }
 
   async addProduct(p: Omit<Product, 'id'>) {

@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AsyncValidatorFn, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ProductService } from '../../core/services/product.service';
 import { Product } from '../../core/models/product.model';
@@ -32,8 +32,32 @@ export class ProductFormComponent implements OnInit {
   isSubmitting = signal(false);
   error: string | null = null;
 
+  skuUniqueValidator(): AsyncValidatorFn {
+    return async (control: AbstractControl): Promise<ValidationErrors | null> => {
+      if (!control.value) {
+        return null;
+      }
+      try {
+        const exists = await this.productService.checkSkuExists(
+          control.value,
+          this.isEditing ? this.productId : null
+        );
+        return exists ? { skuExists: true } : null;
+      } catch (err) {
+        console.error('Error validating SKU uniqueness', err);
+        return null;
+      }
+    };
+  }
+
   async ngOnInit() {
     this.productId = this.route.snapshot.paramMap.get('id');
+    const skuControl = this.form.get('sku');
+    if (skuControl) {
+      skuControl.setAsyncValidators([this.skuUniqueValidator()]);
+      skuControl.updateValueAndValidity();
+    }
+
     if (this.productId && this.productId !== 'new') {
       this.isEditing = true;
       const product = await firstValueFrom(this.productService.getProduct(this.productId).pipe(take(1)));
@@ -54,6 +78,19 @@ export class ProductFormComponent implements OnInit {
     this.error = null;
 
     try {
+      const sku = this.form.get('sku')?.value;
+      if (sku) {
+        const exists = await this.productService.checkSkuExists(
+          sku,
+          this.isEditing ? this.productId : null
+        );
+        if (exists) {
+          this.error = 'SKU already exists. Please choose a unique SKU.';
+          this.isSubmitting.set(false);
+          return;
+        }
+      }
+
       const payload = {
         ...this.form.getRawValue(),
         quantity: Number(this.form.get('quantity')?.value || 0),

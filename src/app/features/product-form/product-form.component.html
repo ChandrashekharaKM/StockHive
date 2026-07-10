@@ -11,7 +11,9 @@
     <div class="form-group">
       <label for="sku">SKU</label>
       <input id="sku" formControlName="sku" type="text" placeholder="e.g. SKU-123" />
-      <span class="validation-error" *ngIf="form.get('sku')?.invalid && form.get('sku')?.touched">SKU is required.</span>
+      <span class="validation-error" *ngIf="form.get('sku')?.hasError('required') && form.get('sku')?.touched">SKU is required.</span>
+      <span class="validation-error" *ngIf="form.get('sku')?.hasError('skuExists') && form.get('sku')?.touched">SKU already exists. Please choose a unique SKU.</span>
+      <span class="pending-message" *ngIf="form.get('sku')?.pending && form.get('sku')?.touched">Checking SKU uniqueness...</span>
     </div>
 
     <div class="form-group">
@@ -31,7 +33,7 @@
 
     <div class="actions">
       <button type="button" class="btn-secondary" (click)="cancel()" [disabled]="isSubmitting()">Cancel</button>
-      <button type="submit" class="btn-primary" [disabled]="form.invalid || isSubmitting()">
+      <button type="submit" class="btn-primary" [disabled]="form.invalid || form.pending || isSubmitting()">
         {{ isSubmitting() ? 'Saving...' : 'Save' }}
       </button>
     </div>
