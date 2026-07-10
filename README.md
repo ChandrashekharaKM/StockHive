@@ -2,6 +2,9 @@
 
 A small inventory tracker built with Angular, Firebase Auth, and Firestore.
 
+##Assignment link
+https://drive.google.com/file/d/1Nf_3uIhMvcX4gZzGH7Mq4fsDI7IPHd4e/view?usp=drivesdk
+
 ## Live Demo
 https://ai-engine-auth.web.app/
 
